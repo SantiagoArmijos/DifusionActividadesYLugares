@@ -1,20 +1,24 @@
 const express = require('express');
+const cors = require('cors');
 const app = express();
-const actividadesRouter = require('./routes/actividades');
-const lugaresRouter = require('./routes/lugares');
-const reservaRouter = require('./routes/reservas');
-const pagosRouter = require('./routes/pagos');
 
+// Middlewares
+app.use(cors());
 app.use(express.json());
 
 // Rutas
+const actividadesRouter = require('./routes/actividades');
+const lugaresRouter = require('./routes/lugares');
+const reservasRouter = require('./routes/reservas');
+const pagosRouter = require('./routes/pagos');
+
 app.use('/api', actividadesRouter);
 app.use('/api', lugaresRouter);
-app.use('/api', reservaRouter);
+app.use('/api', reservasRouter);
 app.use('/api', pagosRouter);
 
-// Puerto
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Servidor corriendo en puerto ${PORT}`);
+// Puerto y escucha global
+const PORT = 3000;
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Servidor corriendo en http://0.0.0.0:${PORT}`);
 });
