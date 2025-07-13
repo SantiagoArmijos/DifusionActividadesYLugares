@@ -11,11 +11,15 @@ const actividadesRouter = require('./routes/actividades');
 const lugaresRouter = require('./routes/lugares');
 const reservasRouter = require('./routes/reservas');
 const pagosRouter = require('./routes/pagos');
+const informacionReservaRouter = require('./routes/informacionReserva');
+const confirmarreservaRouter = require('./routes/confirmarReserva');
 
 app.use('/api', actividadesRouter);
 app.use('/api', lugaresRouter);
 app.use('/api', reservasRouter);
 app.use('/api', pagosRouter);
+app.use('/api', informacionReservaRouter);
+app.use('/api', confirmarreservaRouter);
 
 // Puerto y escucha global
 const PORT = 3000;

@@ -1,40 +1,69 @@
 const express = require('express');
 const router = express.Router();
-const sqlite3 = require('sqlite3').verbose();
+const { createClient } = require('@supabase/supabase-js');
+require('dotenv').config();
 
-const db = new sqlite3.Database('./db/actividades.db');
+// Crear cliente Supabase
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
 // GET /api/listarLugares?fechaDesde=YYYY-MM-DD&fechaHasta=YYYY-MM-DD
-router.get('/listarLugares', (req, res) => {
-    const { fechaDesde, fechaHasta } = req.query;
+router.get('/listarLugares', async (req, res) => {
+  const { fechaDesde, fechaHasta } = req.query;
 
-    if (!fechaDesde || !fechaHasta) {
-        return res.status(400).json({ error: 'Debe proporcionar fechaDesde y fechaHasta en formato (YYYY-MM-DD).' });
+  if (!fechaDesde || !fechaHasta) {
+    return res.status(400).json({ error: 'Debe proporcionar fechaDesde y fechaHasta en formato (YYYY-MM-DD).' });
+  }
+
+  const desde = new Date(fechaDesde);
+  const hasta = new Date(fechaHasta);
+
+  if (isNaN(desde) || isNaN(hasta)) {
+    return res.status(400).json({ error: 'Fechas inválidas.' });
+  }
+
+  try {
+    // Obtener actividades con sus lugares
+    const { data, error } = await supabase
+      .from('Actividad_Municipio')
+      .select(`
+        idLugar,
+        Lugar_Municipio (
+          idLugar,
+          nombre,
+          latitud,
+          longitud,
+          informacion
+        )
+      `)
+      .gte('fechaInicio', fechaDesde)
+      .lte('fechaFin', fechaHasta);
+
+    if (error) {
+      console.error('Error al consultar actividades:', error.message);
+      return res.status(500).json({ error: 'Error al consultar actividades.' });
     }
 
-    const desde = new Date(fechaDesde);
-    const hasta = new Date(fechaHasta);
+    // Filtrar lugares únicos por idLugar
+    const lugaresUnicos = new Map();
 
-    if (isNaN(desde) || isNaN(hasta)) {
-        return res.status(400).json({ error: 'Fechas inválidas.' });
+    for (const actividad of data) {
+      const lugar = actividad.Lugar_Municipio;
+      if (lugar && !lugaresUnicos.has(lugar.idLugar)) {
+        lugaresUnicos.set(lugar.idLugar, {
+          idLugar: lugar.idLugar,
+          nombre: lugar.nombre,
+          latitud: lugar.latitud,
+          longitud: lugar.longitud,
+          informacion: lugar.informacion
+        });
+      }
     }
 
-    const query = `
-        SELECT DISTINCT 
-            l.idLugar, l.nombre, l.latitud, l.longitud, l.informacion
-        FROM Lugar l
-        JOIN Actividad a ON l.idLugar = a.idLugar
-        WHERE DATE(a.fechaInicio) >= DATE(?) AND DATE(a.fechaFin) <= DATE(?)
-    `;
-
-    db.all(query, [fechaDesde, fechaHasta], (err, rows) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).json({ error: 'Error al consultar lugares.' });
-        }
-
-        res.json(rows);
-    });
+    res.json(Array.from(lugaresUnicos.values()));
+  } catch (err) {
+    console.error('Error inesperado:', err);
+    res.status(500).json({ error: 'Error del servidor.' });
+  }
 });
 
 module.exports = router;
