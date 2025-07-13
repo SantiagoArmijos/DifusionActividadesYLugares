@@ -32,7 +32,8 @@ router.get('/listarLugares', async (req, res) => {
           nombre,
           latitud,
           longitud,
-          informacion
+          informacion,
+          ruta_imagen
         )
       `)
       .gte('fechaInicio', fechaDesde)
@@ -54,7 +55,8 @@ router.get('/listarLugares', async (req, res) => {
           nombre: lugar.nombre,
           latitud: lugar.latitud,
           longitud: lugar.longitud,
-          informacion: lugar.informacion
+          informacion: lugar.informacion,
+          ruta_imagen: lugar.ruta_imagen
         });
       }
     }
