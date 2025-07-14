@@ -10,11 +10,11 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY
 router.get('/listar_todas_reservas', async (req, res) => {
   try {
     const { data, error } = await supabase
-      .from('Reserva_CuencaRA')
+      .from('Reserva_Municipio')
       .select('*'); // opcional: orden alfabético por nombre
 
     if (error) {
-      console.error('Error al consultar Reserva_CuencaRA:', error.message);
+      console.error('Error al consultar Reserva_Municipio:', error.message);
       return res.status(500).json({ error: 'Error al consultar reservas.' });
     }
 
