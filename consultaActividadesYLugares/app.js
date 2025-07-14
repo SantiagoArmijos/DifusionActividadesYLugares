@@ -16,6 +16,7 @@ const confirmarreservaRouter = require('./routes/confirmarReserva');
 const listarTodasLasActividadesRouter = require('./routes/listar_actividades');
 const insertarActividadRouter = require('./routes/insertarActividad');
 const listarLugaresRouter = require('./routes/listar_lugares');
+const listarReservasRouter = require('./routes/listar_reservas');
 
 app.use('/api', actividadesRouter);
 app.use('/api', lugaresRouter);
@@ -26,6 +27,7 @@ app.use('/api', confirmarreservaRouter);
 app.use('/api', listarTodasLasActividadesRouter);
 app.use('/api', insertarActividadRouter);
 app.use('/api', listarLugaresRouter);
+app.use('/api', listarReservasRouter);
 
 // Puerto y escucha global
 const PORT = 3000;
